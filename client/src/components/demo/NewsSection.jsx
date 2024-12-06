@@ -1,5 +1,6 @@
 import { NewsCard } from "./NewsCard";
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 export function NewsSection() {
   const getActualDates = () => {
@@ -23,28 +24,31 @@ export function NewsSection() {
 
   const [news, setNews] = useState([]);
 
-  const getNews = () => {
+ 
+  const getNews = async () => {
     const { today, lastWeek } = getActualDates();
-
-    fetch(
-      `https://newsapi.org/v2/everything?q=Traffic&from=${lastWeek}&to=${today}&language=en&sortBy=publishedAt&apiKey=c3ccaecb001a45e0864b03adcc94ca9c`
-    )
-      .then((res) => res.json())
-      .then((json) => {
-        const filteredNews = json.articles
-          .filter(
-            (article) =>
-              article.author &&
-              article.title &&
-              article.description &&
-              article.url &&
-              article.urlToImage
-          )
-          .slice(0, 3);
-
-        console.log(filteredNews);
-        setNews(filteredNews);
-      });
+  
+    try {
+      const response = await axios.get(
+        `https://newsapi.org/v2/everything?q=Traffic&from=${lastWeek}&to=${today}&language=en&sortBy=publishedAt&apiKey=c3ccaecb001a45e0864b03adcc94ca9c`
+      );
+  
+      const filteredNews = response.data.articles
+        .filter(
+          (article) =>
+            article.author &&
+            article.title &&
+            article.description &&
+            article.url &&
+            article.urlToImage
+        )
+        .slice(0, 3);
+  
+      console.log(filteredNews);
+      setNews(filteredNews);
+    } catch (error) {
+      console.error("Error fetching news:", error.message);
+    }
   };
 
   useEffect(() => {
